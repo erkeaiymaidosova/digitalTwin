@@ -8,13 +8,80 @@ import random
 from model import predict_jobs
 from agent import get_learning_resources
 
-st.set_page_config(page_title="Digital Twin", layout="wide")
+# ---------------------------------------------------
+# PAGE CONFIG
+# ---------------------------------------------------
+st.set_page_config(
+    page_title="Digital Twin Career Engine",
+    layout="wide"
+)
 
-# ---------- LOAD DATA ----------
+# ---------------------------------------------------
+# LOAD DATA
+# ---------------------------------------------------
 with open("data.json", "r") as file:
     data = json.load(file)
 
-# ---------- SIDEBAR ----------
+# ---------------------------------------------------
+# PURPLE UI STYLE (same features, only new look)
+# ---------------------------------------------------
+st.markdown("""
+<style>
+
+.stApp {
+    background-color: #d8c4db;
+}
+
+section[data-testid="stSidebar"] {
+    background-color: #eee4ef;
+}
+
+.block-container {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    max-width: 1300px;
+}
+
+h1, h2, h3, h4 {
+    color: #4a2c52;
+}
+
+div[data-testid="stMetric"] {
+    background-color: #f6eff7;
+    border-radius: 18px;
+    padding: 15px;
+    border: 1px solid #dbc8df;
+}
+
+.stButton > button {
+    background-color: #8f6aa8;
+    color: white;
+    border-radius: 12px;
+    border: none;
+    padding: 0.6rem 1rem;
+    font-weight: 600;
+}
+
+.stButton > button:hover {
+    background-color: #6f4e86;
+}
+
+.stTextInput input {
+    border-radius: 12px;
+}
+
+div[data-testid="stChatMessage"] {
+    background-color: #f7f0f8;
+    border-radius: 14px;
+    padding: 10px;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+# ---------------------------------------------------
+# SIDEBAR
+# ---------------------------------------------------
 st.sidebar.title("🚀 Navigation")
 
 page = st.sidebar.radio(
@@ -23,9 +90,8 @@ page = st.sidebar.radio(
 )
 
 # =====================================================
-# PROFILE
+# PROFILE (same features)
 # =====================================================
-
 if page == "🏠 Profile":
 
     st.title("👤 Your Digital Profile")
@@ -63,39 +129,50 @@ if page == "🏠 Profile":
     )
 
     fig.update_traces(fill="toself")
+    fig.update_layout(
+        paper_bgcolor="#f7f0f8",
+        plot_bgcolor="#f7f0f8",
+        font_color="#4a2c52"
+    )
 
     st.plotly_chart(fig, use_container_width=True)
 
 # =====================================================
-# CAREER MATCH
+# CAREER MATCH (same features)
 # =====================================================
-
 elif page == "💼 Career Match":
 
     st.title("💼 Career Match Engine")
 
     results = predict_jobs(data["skills"])
 
-    st.metric("Top Match", results[0][0])
-    st.metric("Total Careers Analysed", "4")
-    st.metric("Growth Potential", "High")
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.metric("Top Match", results[0][0])
+
+    with col2:
+        st.metric("Total Careers Analysed", "4")
+
+    with col3:
+        st.metric("Growth Potential", "High")
 
     st.subheader("Career Scores")
 
     for job, score in results:
         st.write(f"### {job}")
+
         progress = st.progress(0)
 
         for i in range(int(score * 100)):
-            time.sleep(0.005)
+            time.sleep(0.003)
             progress.progress(i + 1)
 
-        st.write(f"Match Score: {round(score * 100,1)}%")
+        st.write(f"Match Score: {round(score*100,1)}%")
 
 # =====================================================
-# AI ASSISTANT
+# AI ASSISTANT (same features)
 # =====================================================
-
 elif page == "🤖 AI Assistant":
 
     st.title("🤖 Personal AI Assistant")
@@ -103,12 +180,12 @@ elif page == "🤖 AI Assistant":
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
-    # show old messages
+    # old messages
     for msg in st.session_state.messages:
         with st.chat_message(msg["role"]):
             st.write(msg["content"])
 
-    prompt = st.chat_input("Ask about career, motivation, learning...")
+    prompt = st.chat_input("Ask about career, learning, motivation...")
 
     if prompt:
 
@@ -116,52 +193,47 @@ elif page == "🤖 AI Assistant":
             {"role": "user", "content": prompt}
         )
 
-        with st.chat_message("user"):
-            st.write(prompt)
-
         q = prompt.lower()
 
         if "career" in q:
             answers = [
                 "AI Engineer fits you strongly.",
-                "Product Manager suits your communication skills.",
-                "Data Analyst is realistic with SQL practice."
+                "Product Manager matches your leadership and communication.",
+                "Data Analyst is realistic if you improve SQL."
             ]
 
         elif "learn" in q:
             answers = [
                 "Focus on Python + SQL + projects.",
-                "Stop passive learning. Build real things.",
-                "Consistency will beat intensity."
+                "Build portfolio first, consume less tutorials.",
+                "Consistency will outperform motivation."
             ]
 
         elif "motivation" in q:
             answers = [
-                "Action creates motivation.",
                 "Discipline beats feelings.",
-                "Start ugly, improve later."
+                "Action creates motivation.",
+                "Small progress daily wins."
             ]
 
         else:
             answers = [
                 "Interesting question.",
-                "That depends on your long-term goals.",
-                "You should keep building practical experience."
+                "That depends on your goals.",
+                "You should keep building real experience."
             ]
 
         reply = random.choice(answers)
-
-        with st.chat_message("assistant"):
-            st.write(reply)
 
         st.session_state.messages.append(
             {"role": "assistant", "content": reply}
         )
 
-# =====================================================
-# RESOURCES
-# =====================================================
+        st.rerun()
 
+# =====================================================
+# RESOURCES (same features)
+# =====================================================
 elif page == "📚 Resources":
 
     st.title("📚 Learning Resources")
@@ -177,14 +249,13 @@ elif page == "📚 Resources":
         st.success(item)
 
 # =====================================================
-# ROAST
+# ROAST MODE (same feature)
 # =====================================================
-
 elif page == "🔥 Roast Mode":
 
     st.title("🔥 Roast My Stack")
 
     st.error(
-        "Too many plans. Too few finished projects. "
-        "Your future employer cannot hire potential forever."
+        "Too many saved tutorials. Too few finished projects. "
+        "Potential means nothing without execution."
     )
